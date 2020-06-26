@@ -3,13 +3,15 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 
 from PyQt5.QtWidgets import *
-from addOrEditDialog import addOrEdit
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel, QSqlQueryModel
-from settingsWindow.settswin import Ui_settingsWindow
-from viewSale import Ui_viewSale
+
+from modules.addOrEditDialog import addOrEdit
+from modules.settswin import Ui_settingsWindow
+from modules.viewSale import Ui_viewSale
+from modules.newSale import Ui_newSaleWin
 import ast
 import json
-from tabletest import *
+
 
 with open('settings.json') as jsonconfigs:
     configsfile = json.load(jsonconfigs)
@@ -92,7 +94,7 @@ class Ui_mainwindow(QtWidgets.QMainWindow):
         self.calendarWidget.setNavigationBarVisible(True)
         self.calendarWidget.setDateEditEnabled(True)
         self.calendarWidget.setObjectName("calendarWidget")
-        self.calendarWidget.clicked[QtCore.QDate].connect(self.buscardata)
+        self.calendarWidget.clicked[QtCore.QDate].connect(self.searchDate)
 
         self.menubar = QtWidgets.QMenuBar(mainwindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
@@ -133,7 +135,7 @@ class Ui_mainwindow(QtWidgets.QMainWindow):
         mainwindow.setStatusBar(self.statusbar)
         self.actionSettings = QtWidgets.QAction(mainwindow)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("wrench.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("icons/wrench.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
         self.actionSettings.setIcon(icon1)
         self.actionSettings.setObjectName("actionSettings")
@@ -184,7 +186,7 @@ class Ui_mainwindow(QtWidgets.QMainWindow):
         rowtuple = self.rowprint(value, "PRODID", "products")
         self.runadd('edit', rowtuple[0], rowtuple[2], rowtuple[1], rowtuple[3])
 
-    def buscardata(self, date):
+    def searchDate(self):
         date = self.calendarWidget.selectedDate()
         sqlstrdate = "SELECT SALEID, SALETIME, SALETOTAL, FINISHED FROM sales WHERE SALETIME LIKE '" + str(
             date.toPyDate()) + "%'"
