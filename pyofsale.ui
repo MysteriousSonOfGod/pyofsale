@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>300</width>
+    <height>300</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">PyOfSale</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../icon.jpeg</normaloff>../../icon.jpeg</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>10</y>
+      <width>751</width>
+      <height>531</height>
+     </rect>
+    </property>
+    <property name="statusTip">
+     <string/>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="prodsTab">
+     <attribute name="title">
+      <string>Products</string>
+     </attribute>
+     <widget class="QTableView" name="tableView">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>70</y>
+        <width>611</width>
+        <height>391</height>
+       </rect>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::DefaultContextMenu</enum>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectColumns</enum>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="searchProd">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>611</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="addbutton">
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>390</y>
+        <width>80</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Add</string>
+      </property>
+      <property name="icon">
+       <iconset theme="list-add">
+        <normaloff>.</normaloff>.</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="editbutton">
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>300</y>
+        <width>80</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Edit</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="sellTab">
+     <attribute name="title">
+      <string>Sell</string>
+     </attribute>
+     <widget class="QTableView" name="salesTableView">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>200</y>
+        <width>611</width>
+        <height>261</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
+     </widget>
+     <widget class="QCalendarWidget" name="calendarWidget">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>311</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="minimumDate">
+       <date>
+        <year>2000</year>
+        <month>9</month>
+        <day>14</day>
+       </date>
+      </property>
+      <property name="gridVisible">
+       <bool>true</bool>
+      </property>
+      <property name="horizontalHeaderFormat">
+       <enum>QCalendarWidget::ShortDayNames</enum>
+      </property>
+      <property name="verticalHeaderFormat">
+       <enum>QCalendarWidget::NoVerticalHeader</enum>
+      </property>
+      <property name="navigationBarVisible">
+       <bool>true</bool>
+      </property>
+      <property name="dateEditEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="newSaleBtn">
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>390</y>
+        <width>81</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(138, 226, 52);</string>
+      </property>
+      <property name="text">
+       <string>New Sale</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="viewSaleBtn">
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>300</y>
+        <width>80</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>View</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="monthSumLabel">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>160</y>
+        <width>151</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="salesComboBox">
+      <property name="geometry">
+       <rect>
+        <x>610</x>
+        <y>30</y>
+        <width>121</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>All</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Finished Only</string>
+       </property>
+      </item>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="customersTab">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="accessibleName">
+      <string/>
+     </property>
+     <attribute name="title">
+      <string>Customers</string>
+     </attribute>
+     <widget class="QTableView" name="customersTableView">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>70</y>
+        <width>611</width>
+        <height>391</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="searchCustomer">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>611</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="addCustomerBtn">
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>390</y>
+        <width>80</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Add</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="editCustomerBtn">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>300</y>
+        <width>80</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Edit</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="searchCustomerMode">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>30</y>
+        <width>91</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>Name</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Phone</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Address</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>E-mail</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QComboBox" name="startsOrContains">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>70</y>
+        <width>91</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string>Starts with</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Contains</string>
+       </property>
+      </item>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionConfigs"/>
+    <addaction name="actionImportDb"/>
+   </widget>
+   <widget class="QMenu" name="aboutMenu">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="aboutMenu"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionConfigs">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/wrench.png</normaloff>icons/wrench.png</iconset>
+   </property>
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About...</string>
+   </property>
+  </action>
+  <action name="actionImportDb">
+   <property name="text">
+    <string>Import Database</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
