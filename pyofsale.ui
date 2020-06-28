@@ -55,12 +55,18 @@
       <property name="contextMenuPolicy">
        <enum>Qt::DefaultContextMenu</enum>
       </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
       <property name="selectionMode">
        <enum>QAbstractItemView::SingleSelection</enum>
       </property>
       <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectColumns</enum>
+       <enum>QAbstractItemView::SelectRows</enum>
       </property>
+      <attribute name="verticalHeaderVisible">
+       <bool>true</bool>
+      </attribute>
      </widget>
      <widget class="QLineEdit" name="searchProd">
       <property name="geometry">
@@ -70,6 +76,9 @@
         <width>611</width>
         <height>25</height>
        </rect>
+      </property>
+      <property name="placeholderText">
+       <string>Search product...</string>
       </property>
      </widget>
      <widget class="QPushButton" name="addbutton">
@@ -258,6 +267,9 @@
         <height>391</height>
        </rect>
       </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
      </widget>
      <widget class="QLineEdit" name="searchCustomer">
       <property name="geometry">
@@ -267,6 +279,9 @@
         <width>611</width>
         <height>25</height>
        </rect>
+      </property>
+      <property name="placeholderText">
+       <string>Search for a customer...</string>
       </property>
      </widget>
      <widget class="QPushButton" name="addCustomerBtn">
@@ -364,7 +379,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionConfigs"/>
+    <addaction name="actionSettings"/>
     <addaction name="actionImportDb"/>
    </widget>
    <widget class="QMenu" name="aboutMenu">
@@ -377,7 +392,7 @@
    <addaction name="aboutMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionConfigs">
+  <action name="actionSettings">
    <property name="icon">
     <iconset>
      <normaloff>icons/wrench.png</normaloff>icons/wrench.png</iconset>

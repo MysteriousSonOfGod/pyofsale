@@ -2,11 +2,16 @@ from PyQt5 import QtCore, QtWidgets, uic
 import sys
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel, QSqlQueryModel
 import sqlite3
+import json
 import ast
 from modules.addOrEditDialog import addOrEdit
 from modules.settswin import Ui_settingsWindow
 from modules.viewSale import Ui_viewSale
-from modules.newSale import Ui_newSaleWin
+from newSale.newSale import Ui_newSaleWin
+from addOrEditCustomer.main import addOrEditCustomer_Ui
+
+with open('settings.json','r') as settingsFile:
+  settings = json.load(settingsFile)
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
@@ -20,8 +25,6 @@ class Ui(QtWidgets.QMainWindow):
         self.searchProd.textChanged.connect(self.searchString)
         self.tableView.doubleClicked['QModelIndex'].connect(self.onclick)
         self.tableView.horizontalHeader().setStretchLastSection(True)
-        self.tableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        self.tableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
         self.salesComboBox.currentIndexChanged.connect(self.searchDate)
 
@@ -31,11 +34,20 @@ class Ui(QtWidgets.QMainWindow):
         self.customersTableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.customersTableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
+
         self.viewSaleBtn.clicked.connect(self.showSale)
+        self.newSaleBtn.clicked.connect(self.newSaleFunc)
+        self.addCustomerBtn.clicked.connect(self.addCustomer)
+
+        self.actionSettings.triggered.connect(self.openSettings)
+
+        self.actionAbout.triggered.connect(lambda: QtWidgets.QMessageBox.about(self, "About", "Made by Nicolas Morais, with SQLite3 and PyQT5."))
 
         self.dbConnect()
+        self.customerSearch()
         self.getMaxMinDate()
         self.searchDate()
+        self.searchString()
         self.show()
 
     def dbConnect(self):
@@ -113,20 +125,14 @@ class Ui(QtWidgets.QMainWindow):
         self.queryModel = QSqlQueryModel()
         self.queryModel.setQuery(sqlstr)
         self.tableView.setModel(self.queryModel)
+        if not settings["showVerticalHeader"]:
+            self.tableView.verticalHeader().setVisible(False)
 
-
-
-    def aboutFunction(self):
-        QMessageBox.about(self, "About", "Made by Nicolas Morais, with SQLite3 and PyQT5.")
-
-    def closeFunction(self):
-        self.close()
-
-    def openconfigs(self):
+    def openSettings(self):
         settingsWin = Ui_settingsWindow(parent='self')
         settingsWin.exec_()
         if settingsWin.newsettings:
-            QMessageBox.information(self, "Info",
+            QtWidgets.QMessageBox.information(self, "Info",
                                     "Restart the program apply new settings.")
 
     def monthsum(self, yearmonthstr):
@@ -150,6 +156,9 @@ class Ui(QtWidgets.QMainWindow):
         tradedatehour = self.cur.fetchone()
         self.visuwindow = MainWindowt(salesMatrix, "Sale at " + str(tradedatehour[0]))
 
+    def newSaleFunc(self):
+        Ui_newSaleWin()
+
     def runadd(self, mode, primkey=0, descPrefill="", codPrefill="", pricePrefill=""):
         addwindow = addOrEdit(parent='self', mode=mode)
         if mode == 'edit':
@@ -165,6 +174,8 @@ class Ui(QtWidgets.QMainWindow):
                     "INSERT INTO products (DESC,BARCODE,PRICE,QTD) VALUES ('" + addwindow.desc.text() + "','" + addwindow.cod.text() +
                     "'," + addwindow.price.text() + "," + addwindow.quant.text() + ")")
         self.conn.commit()
+        self.db.close()
+        self.dbConnect()
         self.searchString()
 
     def customerSearch(self):
@@ -179,12 +190,18 @@ class Ui(QtWidgets.QMainWindow):
         wildcard1 = "'"
         if self.startsOrContains.currentIndex() == 1:
             wildcard1 = "'%"
-        wildcard2 = "%'"
+        wildcard2 = "%' LIMIT 50"
 
         sqlstr = "SELECT EMAIL,PHONE,ADDRESS,NAME FROM customers WHERE " + column + " LIKE " + wildcard1 + self.searchCustomer.text() + wildcard2
         self.queryModel = QSqlQueryModel()
         self.queryModel.setQuery(sqlstr)
         self.customersTableView.setModel(self.queryModel)
+
+    def addCustomer(self):
+        addOrEditCustomer_Ui()
+        self.db.close()
+        self.dbConnect()
+        self.customerSearch()
 
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()
