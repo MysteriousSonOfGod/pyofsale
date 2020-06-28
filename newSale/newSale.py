@@ -143,7 +143,7 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
                  "PRODID," \
                  "BARCODE," \
                  "PRICE," \
-                 "QTD," \
+                 "QTY," \
                  "DESC " \
                  "FROM products " \
                  "WHERE BARCODE LIKE '" + stringtosearch + \
@@ -189,7 +189,7 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         if returnValue == QMessageBox.Yes:
             for item in self.data:
                 print(item)
-                self.cur.execute("UPDATE products SET QTD = QTD - ? WHERE PRODID = ?", (item[0], item[1]))
+                self.cur.execute("UPDATE products SET QTY = QTY - ? WHERE PRODID = ?", (item[0], item[1]))
             self.conn.commit()
             self.insertIntoDb(finished)
 

@@ -6,7 +6,6 @@ import json
 import ast
 from modules.addOrEditDialog import addOrEdit
 from modules.settswin import Ui_settingsWindow
-from modules.viewSale import Ui_viewSale
 from newSale.newSale import Ui_newSaleWin
 from addOrEditCustomer.main import addOrEditCustomer_Ui
 
@@ -68,7 +67,7 @@ class Ui(QtWidgets.QMainWindow):
                          "FINISHED BOOLEAN DEFAULT '0', CUSTOMID INTEGER, FOREIGN KEY (CUSTOMID) REFERENCES "
                          "customers(CUSTOMID));")
         self.cur.execute("CREATE TABLE IF NOT EXISTS products (PRODID INTEGER PRIMARY KEY AUTOINCREMENT, BARCODE "
-                         "TEXT, DESC TEXT NOT NULL UNIQUE, PRICE REAL DEFAULT '0', QTD INTEGER DEFAULT '0');")
+                         "TEXT, DESC TEXT NOT NULL UNIQUE, PRICE REAL DEFAULT '0', QTY INTEGER DEFAULT '0');")
         self.cur.execute("CREATE TABLE IF NOT EXISTS customers (CUSTOMID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT "
                          "NOT NULL UNIQUE, EMAIL TEXT, PHONE TEXT, ADDRESS TEXT);")
 
@@ -123,7 +122,7 @@ class Ui(QtWidgets.QMainWindow):
                  "PRODID," \
                  "BARCODE," \
                  "PRICE," \
-                 "QTD," \
+                 "QTY," \
                  "DESC " \
                  "FROM products " \
                  "WHERE BARCODE LIKE '" + stringtosearch + \
@@ -170,7 +169,7 @@ class Ui(QtWidgets.QMainWindow):
                     "', PRICE=" + str(addwindow.price.text()) + " WHERE PRODID =" + str(primkey))
             else:
                 self.cur.execute(
-                    "INSERT INTO products (DESC,BARCODE,PRICE,QTD) VALUES ('" + addwindow.desc.text() + "','" + addwindow.cod.text() +
+                    "INSERT INTO products (DESC,BARCODE,PRICE,QTY) VALUES ('" + addwindow.desc.text() + "','" + addwindow.cod.text() +
                     "'," + addwindow.price.text() + "," + addwindow.quant.text() + ")")
         self.conn.commit()
         self.db.close()
