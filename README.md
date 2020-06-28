@@ -6,7 +6,9 @@ New features and bugfixes are coming soon.
 ### Depends:
 - sqlite3
 - pyqt5
-- Both dependencies can be installed with pip3.
+
+Both dependencies can be installed with pip3.
+
 ---
 ```
 sudo apt update
@@ -18,4 +20,4 @@ cd pyofsale
 python3 pyofsale.py
 ```
 
-![](https://i.imgur.com/zPmMnEx.png) 
+![](https://i.imgur.com/JhkA2sH.png) 
