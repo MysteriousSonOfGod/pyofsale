@@ -47,9 +47,9 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>70</y>
+        <y>60</y>
         <width>611</width>
-        <height>391</height>
+        <height>401</height>
        </rect>
       </property>
       <property name="contextMenuPolicy">
@@ -69,13 +69,19 @@
       </attribute>
      </widget>
      <widget class="QLineEdit" name="searchProd">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>30</y>
+        <y>20</y>
         <width>611</width>
         <height>25</height>
        </rect>
+      </property>
+      <property name="text">
+       <string/>
       </property>
       <property name="placeholderText">
        <string>Search product...</string>
@@ -162,6 +168,9 @@
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
+      <property name="locale">
+       <locale language="English" country="UnitedStates"/>
+      </property>
       <property name="minimumDate">
        <date>
         <year>2000</year>
@@ -186,6 +195,9 @@
       </property>
      </widget>
      <widget class="QPushButton" name="newSaleBtn">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>650</x>
@@ -199,6 +211,9 @@
       </property>
       <property name="text">
        <string>New Sale</string>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
       </property>
      </widget>
      <widget class="QPushButton" name="viewSaleBtn">
@@ -231,7 +246,7 @@
       <property name="geometry">
        <rect>
         <x>610</x>
-        <y>30</y>
+        <y>20</y>
         <width>121</width>
         <height>25</height>
        </rect>
@@ -262,9 +277,9 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>70</y>
+        <y>60</y>
         <width>611</width>
-        <height>391</height>
+        <height>401</height>
        </rect>
       </property>
       <property name="alternatingRowColors">
@@ -275,7 +290,7 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>30</y>
+        <y>20</y>
         <width>611</width>
         <height>25</height>
        </rect>
@@ -317,7 +332,7 @@
       <property name="geometry">
        <rect>
         <x>640</x>
-        <y>30</y>
+        <y>20</y>
         <width>91</width>
         <height>25</height>
        </rect>
@@ -347,7 +362,7 @@
       <property name="geometry">
        <rect>
         <x>640</x>
-        <y>70</y>
+        <y>60</y>
         <width>91</width>
         <height>25</height>
        </rect>
@@ -362,6 +377,82 @@
         <string>Contains</string>
        </property>
       </item>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="suppliersTab">
+     <attribute name="title">
+      <string>Suppliers</string>
+     </attribute>
+     <widget class="QTableView" name="suppliersTableView">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>60</y>
+        <width>611</width>
+        <height>401</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="searchSupplier">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>611</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="placeholderText">
+       <string>Search supplier...</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="addSupplierBtn">
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>390</y>
+        <width>80</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Add Supplier</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="editSupplierBtn">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>300</y>
+        <width>80</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Edit</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="orderBtn">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>643</x>
+        <y>180</y>
+        <width>91</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Order...</string>
+      </property>
      </widget>
     </widget>
    </widget>

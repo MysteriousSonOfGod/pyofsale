@@ -13,27 +13,45 @@ from decimal import Decimal as D
 import sys
 
 class Ui_newSaleWin(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self,saleId=None):
         super(Ui_newSaleWin, self).__init__()
+
         uic.loadUi('newSale/newSale.ui', self)
         self.data = []
+        self.saleId=saleId
 
-        # self.includeBtn.clicked.connect()
         self.setUpConnect()
         self.setCompleter()
         self.setCustomerCompleter()
-        self.input = self.findChild(QtWidgets.QLineEdit, 'input')
+        if self.saleId is not None:
+            import ast
+            self.cur.execute("SELECT SALEID, SALEPRODS, SALETIME, FINISHED,NAME FROM sales,customers WHERE SALEID LIKE "+str(self.saleId))
+            sqlReturn=self.cur.fetchone()
+            prodsStr=sqlReturn[1]
+            self.data.extend(ast.literal_eval(prodsStr))
+            self.setCustomer()
+            if sqlReturn[3]==1:
+                self.finButton.setEnabled(False)
+                self.saveButton.setEnabled(False)
+                self.includeBtn.setEnabled(False)
+                self.deleteBtn.setEnabled(False)
+                self.customerLineEdit.setEnabled(False)
+                self.searchLineEdit.setEnabled(False)
+                self.quantSpinbox.setEnabled(False)
+                self.doubleSpinBox.setEnabled(False)
         self.insertItemsTable()
+
         self.cancelButton.clicked.connect(lambda: self.close())
         self.includeBtn.clicked.connect(self.addItem)
         self.includeBtn.clicked.connect(self.searchLineEdit.setFocus)
-        self.saveButton.clicked.connect(lambda: self.finishSale(0))
+        self.saveButton.clicked.connect(lambda: self.finishSale(False))
         self.customerLineEdit.editingFinished.connect(self.setCustomer)
-        self.finButton.clicked.connect(lambda: self.finishSale(1))
+        self.finButton.clicked.connect(lambda: self.finishSale(True))
         self.deleteBtn.clicked.connect(self.deleteItem)
 
         self.searchLineEdit.editingFinished.connect(self.setPrice)
         self.quantSpinbox.setKeyboardTracking(False)
+
 
         self.show()
 
@@ -54,15 +72,12 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
     def insertItemsTable(self):
         self.tableWidget.clear()
         self.tableWidget.setColumnCount(3)
-        self.tableWidget.setRowCount(len(self.data))
+
 
         self.tableWidget.setHorizontalHeaderLabels(['Quant', 'Desc', 'Price'])
-        for row in range(len(self.data)):
-            self.cur.execute("SELECT DESC FROM products WHERE PRODID LIKE '" + str((self.data[row][1])) + "%'")
-            itemDesc = self.cur.fetchone()[0]
-            self.tableWidget.setItem(row, 0, QTableWidgetItem(str((self.data[row][0]))))
-            self.tableWidget.setItem(row, 1, QTableWidgetItem(str(itemDesc)))
-            self.tableWidget.setItem(row, 2, QTableWidgetItem((self.data[row][2])))
+
+
+        self.tableWidget.setRowCount(len(self.data))
 
         header = self.tableWidget.horizontalHeader()
         header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
@@ -82,12 +97,28 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         if self.alphaOrderCheck.isChecked():
             self.tableWidget.sortByColumn(1, Qt.AscendingOrder)
 
+
+        for row in range(len(self.data)):
+            self.cur.execute("SELECT DESC FROM products WHERE PRODID LIKE '" + str((self.data[row][1])) + "%'")
+            itemDesc = self.cur.fetchone()[0]
+
+            self.tableWidget.setItem(row, 0, QTableWidgetItem(str((self.data[row][0]))))
+            self.tableWidget.setItem(row, 1, QTableWidgetItem(str(itemDesc)))
+            self.tableWidget.setItem(row, 2, QTableWidgetItem((self.data[row][2])))
+
+
     def setCustomer(self):
-        if self.customerLineEdit.text() is not None:
+        if self.customerLineEdit.text() is not None and self.saleId is None:
+            self.cur.execute('SELECT CUSTOMID FROM customers WHERE NAME LIKE "' + str(self.customerLineEdit.text()) + '"')
+            self.customId = self.cur.fetchone()[0]
+        elif self.saleId is not None:
+            self.cur.execute('SELECT NAME FROM sales,customers WHERE SALEID LIKE ' + str(self.saleId))
+            self.customerLineEdit.setText(str(self.cur.fetchone()[0]))
             self.cur.execute('SELECT CUSTOMID FROM customers WHERE NAME LIKE "' + str(self.customerLineEdit.text()) + '"')
             self.customId = self.cur.fetchone()[0]
         else:
             self.customId=None
+
 
     def addItem(self):
         if self.searchLineEdit.text() != '' and int(self.quantSpinbox.text()) > 0 :
@@ -146,7 +177,7 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         self.customerLineEdit.setCompleter(completer)
 
 
-    def finishSale(self,finished=1):
+    def finishSale(self,finished=True):
         areYouSure = QMessageBox()
         areYouSure.setIcon(QMessageBox.Question)
         areYouSure.setText("Are you sure you want to finish this sale?")
@@ -154,6 +185,7 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         areYouSure.setWindowTitle("Are you sure?")
         areYouSure.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         returnValue = areYouSure.exec_()
+
         if returnValue == QMessageBox.Yes:
             for item in self.data:
                 print(item)
@@ -162,9 +194,13 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
             self.insertIntoDb(finished)
 
     def insertIntoDb(self, mode):
-        exstr='INSERT INTO sales (CUSTOMID,SALEPRODS,SALETOTAL,FINISHED) VALUES(' + str(self.customId) +',"'+ str(self.data) +'",'+str(self.itemsSum)+ ','+str(mode)+');'
-        print(exstr)
-        self.cur.execute(exstr)
+        if self.saleId is None:
+            self.cur.execute(
+                'INSERT INTO sales (CUSTOMID,SALEPRODS,SALETOTAL,FINISHED) VALUES(' + str(self.customId) + ',"' + str(
+                    self.data) + '",' + str(self.itemsSum) + ',' + str(mode) + ');')
+        else:
+            self.cur.execute('UPDATE sales SET SALEPRODS="' +str(self.data)+ '",SALETOTAL='+str(self.itemsSum)+", FINISHED="+str(mode)+", CUSTOMID= "+str(self.customId)+" WHERE SALEID="+str(self.saleId))
+
         self.conn.commit()
         self.close()
 

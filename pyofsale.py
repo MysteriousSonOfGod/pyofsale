@@ -150,17 +150,10 @@ class Ui(QtWidgets.QMainWindow):
     def showSale(self):
         index = (self.salesTableView.selectionModel().currentIndex())
         value = index.sibling(index.row(), 0).data()
-        saleList = ((self.rowprint(value, "SALEID", "sales")[1]))
-
-        salesMatrix = ast.literal_eval(saleList)
-
-        for item in salesMatrix:
-            self.cur.execute("SELECT DESC FROM products WHERE PRODID=" + str(item[1]))
-            row = self.cur.fetchone()
-            item[1] = str(row[0])
-        self.cur.execute("SELECT SALETIME FROM sales WHERE SALEID=" + str(value))
-        tradedatehour = self.cur.fetchone()
-        self.visuwindow = MainWindowt(salesMatrix, "Sale at " + str(tradedatehour[0]))
+        # self.cur.execute("SELECT SALETIME FROM sales WHERE SALEID=" + str(value))
+        # tradedatehour = self.cur.fetchone()
+        # self.visuwindow = Ui_newSaleWin(salesMatrix, "Sale at " + str(tradedatehour[0]))
+        Ui_newSaleWin(saleId=str(value))
 
     def newSaleFunc(self):
         Ui_newSaleWin()
