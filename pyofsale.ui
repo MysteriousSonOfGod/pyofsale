@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../icon.jpeg</normaloff>../../icon.jpeg</iconset>
+    <normaloff>icon.svg</normaloff>icon.svg</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
@@ -299,7 +299,7 @@
      </widget>
      <widget class="QPushButton" name="editCustomerBtn">
       <property name="enabled">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>

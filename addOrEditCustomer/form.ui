@@ -68,31 +68,6 @@
     <string>E-mail</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="phoneLineEdit">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>160</y>
-     <width>381</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="inputMask">
-    <string/>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="maxLength">
-    <number>32767</number>
-   </property>
-   <property name="frame">
-    <bool>true</bool>
-   </property>
-   <property name="placeholderText">
-    <string>(123)456-7890</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="phoneLabel">
    <property name="geometry">
     <rect>
@@ -183,6 +158,19 @@
     <string>Cancel</string>
    </property>
   </widget>
+  <widget class="QLineEdit" name="phoneLineEdit">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>160</y>
+     <width>381</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>
@@ -203,38 +191,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>emailLineEdit</sender>
-   <signal>returnPressed()</signal>
-   <receiver>phoneLineEdit</receiver>
-   <slot>setFocus()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>157</x>
-     <y>120</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>170</x>
-     <y>174</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>phoneLineEdit</sender>
-   <signal>returnPressed()</signal>
-   <receiver>addressLineEdit</receiver>
-   <slot>setFocus()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>195</x>
-     <y>183</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>218</x>
-     <y>230</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>addressLineEdit</sender>
    <signal>returnPressed()</signal>
    <receiver>saveButton</receiver>
@@ -247,6 +203,38 @@
     <hint type="destinationlabel">
      <x>421</x>
      <y>292</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>emailLineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>phoneLineEdit</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>164</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>152</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>phoneLineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>addressLineEdit</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>233</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>255</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>

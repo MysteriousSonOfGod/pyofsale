@@ -30,10 +30,14 @@ class Ui(QtWidgets.QMainWindow):
 
         self.searchCustomer.textChanged.connect(self.customerSearch)
         self.searchCustomerMode.currentIndexChanged.connect(self.customerSearch)
+
         self.customersTableView.horizontalHeader().setStretchLastSection(True)
         self.customersTableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.customersTableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.customersTableView.doubleClicked['QModelIndex'].connect(lambda: self.addCustomer(add=False))
+        self.customersTableView.clicked['QModelIndex'].connect(lambda: self.editCustomerBtn.setEnabled(True))
 
+        self.editCustomerBtn.clicked.connect(lambda: self.addCustomer(add=False))
 
         self.viewSaleBtn.clicked.connect(self.showSale)
         self.newSaleBtn.clicked.connect(self.newSaleFunc)
@@ -44,6 +48,8 @@ class Ui(QtWidgets.QMainWindow):
         self.actionAbout.triggered.connect(lambda: QtWidgets.QMessageBox.about(self, "About", "Made by Nicolas Morais, with SQLite3 and PyQT5."))
 
         self.dbConnect()
+        self.calendarWidget.clicked.connect(self.searchDate)
+
         self.customerSearch()
         self.getMaxMinDate()
         self.searchDate()
@@ -192,15 +198,24 @@ class Ui(QtWidgets.QMainWindow):
             wildcard1 = "'%"
         wildcard2 = "%' LIMIT 50"
 
-        sqlstr = "SELECT EMAIL,PHONE,ADDRESS,NAME FROM customers WHERE " + column + " LIKE " + wildcard1 + self.searchCustomer.text() + wildcard2
+        sqlstr = "SELECT CUSTOMID, EMAIL, PHONE, ADDRESS, NAME FROM customers WHERE " + column + " LIKE " + wildcard1 + self.searchCustomer.text() + wildcard2
         self.queryModel = QSqlQueryModel()
         self.queryModel.setQuery(sqlstr)
         self.customersTableView.setModel(self.queryModel)
+        self.customersTableView.setColumnHidden(0,True)
 
-    def addCustomer(self):
-        addOrEditCustomer_Ui()
+    def addCustomer(self,add=True):
+        index = (self.customersTableView.selectionModel().currentIndex())
+        value = index.sibling(index.row(), 0).data()
+
+        if add:
+            addOrEditCustomer_Ui()
+        else:
+            addOrEditCustomer_Ui(value)
         self.db.close()
         self.dbConnect()
+
+        self.editCustomerBtn.setEnabled(False)
         self.customerSearch()
 
 app = QtWidgets.QApplication(sys.argv)
