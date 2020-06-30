@@ -1,4 +1,5 @@
 # pyofsale
+
 A simple Point of Sale software made with PyQt5 and SQLite3. Runs in Python3.
 
 New features and bugfixes are coming soon.
@@ -20,4 +21,4 @@ cd pyofsale
 python3 pyofsale.py
 ```
 
-![](https://i.imgur.com/JhkA2sH.png) 
+![](screenshot.png) 
