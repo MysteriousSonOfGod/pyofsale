@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>799</width>
+    <height>601</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -23,6 +23,18 @@
    <iconset>
     <normaloff>icon.svg</normaloff>icon.svg</iconset>
   </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonTextBesideIcon</enum>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
@@ -36,8 +48,14 @@
     <property name="statusTip">
      <string/>
     </property>
+    <property name="tabPosition">
+     <enum>QTabWidget::North</enum>
+    </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>4</number>
+    </property>
+    <property name="movable">
+     <bool>true</bool>
     </property>
     <widget class="QWidget" name="prodsTab">
      <attribute name="title">
@@ -65,7 +83,7 @@
        <enum>QAbstractItemView::SelectRows</enum>
       </property>
       <attribute name="verticalHeaderVisible">
-       <bool>true</bool>
+       <bool>false</bool>
       </attribute>
      </widget>
      <widget class="QLineEdit" name="searchProd">
@@ -282,6 +300,9 @@
         <height>401</height>
        </rect>
       </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::DefaultContextMenu</enum>
+      </property>
       <property name="alternatingRowColors">
        <bool>true</bool>
       </property>
@@ -379,6 +400,62 @@
       </item>
      </widget>
     </widget>
+    <widget class="QWidget" name="replTab">
+     <attribute name="title">
+      <string>Replenishment</string>
+     </attribute>
+     <widget class="QCalendarWidget" name="replCalendar">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>304</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <property name="autoFillBackground">
+       <bool>true</bool>
+      </property>
+      <property name="gridVisible">
+       <bool>true</bool>
+      </property>
+      <property name="verticalHeaderFormat">
+       <enum>QCalendarWidget::NoVerticalHeader</enum>
+      </property>
+      <property name="navigationBarVisible">
+       <bool>true</bool>
+      </property>
+      <property name="dateEditEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QTableView" name="replTableView">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>200</y>
+        <width>611</width>
+        <height>261</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="addPurchOrder">
+      <property name="geometry">
+       <rect>
+        <x>650</x>
+        <y>390</y>
+        <width>80</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string>Add</string>
+      </property>
+     </widget>
+    </widget>
     <widget class="QWidget" name="suppliersTab">
      <attribute name="title">
       <string>Suppliers</string>
@@ -393,7 +470,7 @@
        </rect>
       </property>
      </widget>
-     <widget class="QLineEdit" name="searchSupplier">
+     <widget class="QLineEdit" name="searchSuppLine">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -444,9 +521,9 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>643</x>
+        <x>650</x>
         <y>180</y>
-        <width>91</width>
+        <width>61</width>
         <height>31</height>
        </rect>
       </property>
@@ -454,6 +531,30 @@
        <string>Order...</string>
       </property>
      </widget>
+     <widget class="QToolButton" name="orderToolButton">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>710</x>
+        <y>180</y>
+        <width>21</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>...</string>
+      </property>
+      <property name="arrowType">
+       <enum>Qt::DownArrow</enum>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="dashboardTab">
+     <attribute name="title">
+      <string>Dashboard</string>
+     </attribute>
     </widget>
    </widget>
   </widget>
@@ -462,7 +563,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>799</width>
      <height>22</height>
     </rect>
    </property>
@@ -471,7 +572,6 @@
      <string>File</string>
     </property>
     <addaction name="actionSettings"/>
-    <addaction name="actionImportDb"/>
    </widget>
    <widget class="QMenu" name="aboutMenu">
     <property name="title">
@@ -500,6 +600,14 @@
   <action name="actionImportDb">
    <property name="text">
     <string>Import Database</string>
+   </property>
+  </action>
+  <action name="emailSupAction">
+   <property name="text">
+    <string>Email Supplier</string>
+   </property>
+   <property name="toolTip">
+    <string>Email Supplier</string>
    </property>
   </action>
  </widget>

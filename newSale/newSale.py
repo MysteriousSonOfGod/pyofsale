@@ -2,11 +2,10 @@
 from PyQt5.QtGui import *
 
 from PyQt5 import QtCore, QtGui, QtWidgets,uic
-from PyQt5.QtWidgets import QTableWidgetItem, QPushButton
+from PyQt5.QtWidgets import QTableWidgetItem, QPushButton, QCompleter
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel, QSqlQueryModel
 from PyQt5.QtCore import *
 
-from PyQt5.QtWidgets import *
 import sqlite3
 from decimal import Decimal as D
 
@@ -39,6 +38,8 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
                 self.searchLineEdit.setEnabled(False)
                 self.quantSpinbox.setEnabled(False)
                 self.doubleSpinBox.setEnabled(False)
+                self.setWindowTitle("PyOfSale - Sale at "+sqlReturn[2])
+
         self.insertItemsTable()
 
         self.cancelButton.clicked.connect(lambda: self.close())
@@ -203,7 +204,6 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
 
         self.conn.commit()
         self.close()
-
 
 # app = QtWidgets.QApplication(sys.argv)
 # window = Ui_newSaleWin()

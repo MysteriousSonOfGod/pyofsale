@@ -1,25 +1,31 @@
 from PyQt5 import QtCore, QtWidgets, uic
+from PyQt5.QtCore import QPoint
 import sys
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel, QSqlQueryModel
 import sqlite3
 import json
 import ast
+import webbrowser
 from modules.addOrEditDialog import addOrEdit
-from modules.settswin import Ui_settingsWindow
+from settingsWindow.main import settingsWindow
 from newSale.newSale import Ui_newSaleWin
 from addOrEditCustomer.main import addOrEditCustomer_Ui
+from addOrEditSupplier.main import addOrEditSupplier_Ui
 
-with open('settings.json','r') as settingsFile:
-  settings = json.load(settingsFile)
+with open('settings.json', 'r') as settingsFile:
+    settings = json.load(settingsFile)
+
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
         uic.loadUi('pyofsale.ui', self)
 
+        self.tabWidget.setTabPosition(settings["tabsPosition"])
+        self.tabWidget.setTabShape(settings["tabsShape"])
+
         self.addbutton.clicked.connect(self.runadd)
         self.editbutton.clicked.connect(self.onclick)
-
 
         self.searchProd.textChanged.connect(self.searchString)
         self.tableView.doubleClicked['QModelIndex'].connect(self.onclick)
@@ -33,20 +39,30 @@ class Ui(QtWidgets.QMainWindow):
         self.customersTableView.horizontalHeader().setStretchLastSection(True)
         self.customersTableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.customersTableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self.customersTableView.doubleClicked['QModelIndex'].connect(lambda: self.addCustomer(add=False))
         self.customersTableView.clicked['QModelIndex'].connect(lambda: self.editCustomerBtn.setEnabled(True))
+        self.customersTableView.doubleClicked['QModelIndex'].connect(lambda: self.addCustomer(add=False))
 
         self.editCustomerBtn.clicked.connect(lambda: self.addCustomer(add=False))
+        self.editSupplierBtn.clicked.connect(lambda: self.addSupplier(add=False))
 
         self.viewSaleBtn.clicked.connect(self.showSale)
-        self.newSaleBtn.clicked.connect(self.newSaleFunc)
+        self.newSaleBtn.clicked.connect(lambda: Ui_newSaleWin())
+        self.salesTableView.doubleClicked['QModelIndex'].connect(lambda: self.showSale())
+
         self.addCustomerBtn.clicked.connect(self.addCustomer)
+        self.addSupplierBtn.clicked.connect(self.addSupplier)
 
         self.actionSettings.triggered.connect(self.openSettings)
 
-        self.actionAbout.triggered.connect(lambda: QtWidgets.QMessageBox.about(self, "About", "Made by Nicolas Morais, with SQLite3 and PyQT5."))
+        self.actionAbout.triggered.connect(
+            lambda: QtWidgets.QMessageBox.about(self, "About", "Made by Nicolas Morais, with SQLite3 and PyQT5."))
 
         self.dbConnect()
+
+        self.supplierSearch()
+        self.setSupOrderMenu()
+        self.searchSuppLine.textChanged.connect(self.supplierSearch)
+
         self.calendarWidget.clicked.connect(self.searchDate)
 
         self.customerSearch()
@@ -84,7 +100,6 @@ class Ui(QtWidgets.QMainWindow):
             self.calendarWidget.setMaximumDate(QtCore.QDate(int(maxDate[:4]), int(maxDate[5:7]), int(maxDate[8:])))
         else:
             self.calendarWidget.setEnabled(False)
-            self.salesComboBox.setEnabled(False)
             self.viewSaleBtn.setEnabled(False)
 
     def rowprint(self, primarikeycolumn, primaykey, table):
@@ -112,7 +127,8 @@ class Ui(QtWidgets.QMainWindow):
 
         self.salesTableView.setModel(self.queryModel)
 
-        self.cur.execute("SELECT SUM(SALETOTAL) FROM sales WHERE SALETIME LIKE '" + str(date.toPyDate())[:-2] + "%' AND FINISHED = 1")
+        self.cur.execute("SELECT SUM(SALETOTAL) FROM sales WHERE SALETIME LIKE ? ",
+                         ((str(date.toPyDate())[:-2]) + '%',))
         monthSumDb = self.cur.fetchone()
         self.monthSumLabel.setText("Month Total: " + str(monthSumDb[0]))
 
@@ -127,6 +143,7 @@ class Ui(QtWidgets.QMainWindow):
                  "FROM products " \
                  "WHERE BARCODE LIKE '" + stringtosearch + \
                  "%' OR DESC LIKE " + "'" + stringtosearch + "%'"
+
         self.queryModel = QSqlQueryModel()
         self.queryModel.setQuery(sqlstr)
         self.tableView.setModel(self.queryModel)
@@ -134,28 +151,19 @@ class Ui(QtWidgets.QMainWindow):
             self.tableView.verticalHeader().setVisible(False)
 
     def openSettings(self):
-        settingsWin = Ui_settingsWindow(parent='self')
-        settingsWin.exec_()
-        if settingsWin.newsettings:
-            QtWidgets.QMessageBox.information(self, "Info",
-                                    "Restart the program apply new settings.")
+        settsWindow = settingsWindow()
+        settsWindow.exec_()
 
     def monthsum(self, yearmonthstr):
-        self.cur.execute(
-            "SELECT SUM(SALETOTAL) FROM sales WHERE SALETIME LIKE '" + yearmonthstr + "%' AND FINISHED = 1")
+        self.cur.execute("SELECT SUM(SALETOTAL) FROM sales WHERE SALETIME LIKE ? AND FINISHED =1 ",
+                         (yearmonthstr + "%'"),)
         monthSumDb = self.cur.fetchone()
         self.monthSumLabel.setText("Total no mes" + str(monthSumDb))
 
     def showSale(self):
         index = (self.salesTableView.selectionModel().currentIndex())
         value = index.sibling(index.row(), 0).data()
-        # self.cur.execute("SELECT SALETIME FROM sales WHERE SALEID=" + str(value))
-        # tradedatehour = self.cur.fetchone()
-        # self.visuwindow = Ui_newSaleWin(salesMatrix, "Sale at " + str(tradedatehour[0]))
         Ui_newSaleWin(saleId=str(value))
-
-    def newSaleFunc(self):
-        Ui_newSaleWin()
 
     def runadd(self, mode, primkey=0, descPrefill="", codPrefill="", pricePrefill=""):
         addwindow = addOrEdit(parent='self', mode=mode)
@@ -165,16 +173,28 @@ class Ui(QtWidgets.QMainWindow):
         if addwindow.outstatus:
             if mode == 'edit':
                 self.cur.execute(
-                    "UPDATE products SET DESC = '" + addwindow.desc.text() + "', BARCODE='" + addwindow.cod.text() +
-                    "', PRICE=" + str(addwindow.price.text()) + " WHERE PRODID =" + str(primkey))
+                    "UPDATE products SET DESC=?, BARCODE=?, PRICE=?, WHERE PRODID=?",
+                    (addwindow.desc.text(),
+                     addwindow.cod.text(),
+                     addwindow.price.text(),
+                     primkey,))
             else:
                 self.cur.execute(
-                    "INSERT INTO products (DESC,BARCODE,PRICE,QTY) VALUES ('" + addwindow.desc.text() + "','" + addwindow.cod.text() +
-                    "'," + addwindow.price.text() + "," + addwindow.quant.text() + ")")
+                    "INSERT INTO products (DESC,BARCODE,PRICE,QTY) VALUES (?,?,?,?) ",
+                    (addwindow.desc.text(),
+                     addwindow.cod.text(),
+                     addwindow.price.text(),
+                     addwindow.quant.text(),))
+
         self.conn.commit()
         self.db.close()
         self.dbConnect()
         self.searchString()
+
+    def setSupOrderMenu(self):
+
+        self.SupOrderMenu = QtWidgets.QMenu()
+        self.emailSupAction = self.SupOrderMenu.addAction('E-mail Supplier')
 
     def customerSearch(self):
         if self.searchCustomerMode.currentIndex() == 0:
@@ -185,18 +205,17 @@ class Ui(QtWidgets.QMainWindow):
             column = "ADDRESS"
         else:
             column = "EMAIL"
-        wildcard1 = "'"
-        if self.startsOrContains.currentIndex() == 1:
-            wildcard1 = "'%"
-        wildcard2 = "%' LIMIT 50"
+        wildcard = "'"
+        if self.startsOrContains.currentIndex():
+            wildcard = "'%"
 
-        sqlstr = "SELECT CUSTOMID, EMAIL, PHONE, ADDRESS, NAME FROM customers WHERE " + column + " LIKE " + wildcard1 + self.searchCustomer.text() + wildcard2
+        sqlstr = "SELECT CUSTOMID, EMAIL, PHONE, ADDRESS, NAME FROM customers WHERE " + column + " LIKE " + wildcard + self.searchCustomer.text() + "%' LIMIT 50"
         self.queryModel = QSqlQueryModel()
         self.queryModel.setQuery(sqlstr)
         self.customersTableView.setModel(self.queryModel)
-        self.customersTableView.setColumnHidden(0,True)
+        self.customersTableView.setColumnHidden(0, True)
 
-    def addCustomer(self,add=True):
+    def addCustomer(self, add=True):
         index = (self.customersTableView.selectionModel().currentIndex())
         value = index.sibling(index.row(), 0).data()
 
@@ -209,6 +228,33 @@ class Ui(QtWidgets.QMainWindow):
 
         self.editCustomerBtn.setEnabled(False)
         self.customerSearch()
+
+    def supplierSearch(self):
+        self.queryModel = QSqlQueryModel()
+        self.queryModel.setQuery("SELECT * FROM suppliers WHERE NAME LIKE '" + self.searchSuppLine.text() + "%'")
+        self.suppliersTableView.setModel(self.queryModel)
+        self.suppliersTableView.horizontalHeader().setStretchLastSection(True)
+        self.suppliersTableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.suppliersTableView.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.suppliersTableView.clicked['QModelIndex'].connect(lambda: self.editSupplierBtn.setEnabled(True))
+        self.suppliersTableView.clicked['QModelIndex'].connect(lambda: self.orderBtn.setEnabled(True))
+        self.suppliersTableView.clicked['QModelIndex'].connect(lambda: self.orderToolButton.setEnabled(True))
+        self.orderToolButton.clicked.connect(lambda: self.SupOrderMenu.exec_(self.orderToolButton.mapToGlobal(QPoint(0, 20))))
+        self.suppliersTableView.setColumnHidden(0, True)
+        self.editSupplierBtn.setEnabled(False)
+
+    def addSupplier(self, add=True):
+        index = (self.suppliersTableView.selectionModel().currentIndex())
+        value = index.sibling(index.row(), 0).data()
+
+        if add:
+            addOrEditSupplier_Ui()
+        else:
+            addOrEditSupplier_Ui(value)
+
+        self.editSupplierBtn.setEnabled(False)
+        self.customerSearch()
+
 
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()
