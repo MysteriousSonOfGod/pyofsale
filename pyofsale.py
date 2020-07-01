@@ -9,6 +9,8 @@ import webbrowser
 from modules.addOrEditDialog import addOrEdit
 from settingsWindow.main import settingsWindow
 from newSale.newSale import Ui_newSaleWin
+from purchOrder.main import Ui_purchOrder
+
 from addOrEditCustomer.main import addOrEditCustomer_Ui
 from addOrEditSupplier.main import addOrEditSupplier_Ui
 
@@ -47,10 +49,12 @@ class Ui(QtWidgets.QMainWindow):
 
         self.viewSaleBtn.clicked.connect(self.showSale)
         self.newSaleBtn.clicked.connect(lambda: Ui_newSaleWin())
+        self.addPurchOrder.clicked.connect(lambda: Ui_purchOrder())
+
         self.salesTableView.doubleClicked['QModelIndex'].connect(lambda: self.showSale())
 
         self.addCustomerBtn.clicked.connect(self.addCustomer)
-        self.addSupplierBtn.clicked.connect(self.addSupplier)
+        self.addSupplierBtn.clicked.connect(lambda: self.addSupplier())
 
         self.actionSettings.triggered.connect(self.openSettings)
 
@@ -68,6 +72,7 @@ class Ui(QtWidgets.QMainWindow):
         self.customerSearch()
         self.getMaxMinDate()
         self.searchDate()
+        self.replDateSearch()
         self.searchString()
         self.show()
 
@@ -78,14 +83,23 @@ class Ui(QtWidgets.QMainWindow):
         self.db = QSqlDatabase.addDatabase("QSQLITE")
         self.db.setDatabaseName("pyofsaledb.db")
         self.db.open()
-        self.cur.execute("CREATE TABLE IF NOT EXISTS sales (SALEID INTEGER PRIMARY KEY AUTOINCREMENT, SALEPRODS TEXT, "
-                         "SALETIME DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW','LOCALTIME')),SALETOTAL TEXT,"
-                         "FINISHED BOOLEAN DEFAULT '0', CUSTOMID INTEGER, FOREIGN KEY (CUSTOMID) REFERENCES "
-                         "customers(CUSTOMID));")
-        self.cur.execute("CREATE TABLE IF NOT EXISTS products (PRODID INTEGER PRIMARY KEY AUTOINCREMENT, BARCODE "
-                         "TEXT, DESC TEXT NOT NULL UNIQUE, PRICE REAL DEFAULT '0', QTY INTEGER DEFAULT '0');")
-        self.cur.execute("CREATE TABLE IF NOT EXISTS customers (CUSTOMID INTEGER PRIMARY KEY AUTOINCREMENT, NAME TEXT "
-                         "NOT NULL UNIQUE, EMAIL TEXT, PHONE TEXT, ADDRESS TEXT);")
+        self.cur.execute(" CREATE TABLE IF NOT EXISTS sales (SALEID INTEGER PRIMARY KEY AUTOINCREMENT, SALEPRODS TEXT,"
+                         " SALETIME DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW','LOCALTIME')),SALETOTAL REAL,"
+                         "FINISHED BOOLEAN DEFAULT '0', CUSTOMID INTEGER, FOREIGN KEY (CUSTOMID) REFERENCES customers(CUSTOMID));")
+
+        self.cur.execute("CREATE TABLE IF NOT EXISTS products (PRODID INTEGER PRIMARY KEY AUTOINCREMENT, BARCODE TEXT,"
+                         " DESC TEXT NOT NULL UNIQUE, PRICE REAL DEFAULT 0, COST REAL DEFAULT 0, QTY REAL DEFAULT 0);")
+
+        self.cur.execute("CREATE TABLE IF NOT EXISTS customers (CUSTOMID INTEGER PRIMARY KEY AUTOINCREMENT, "
+                         "NAME TEXT NOT NULL UNIQUE, EMAIL TEXT, PHONE TEXT, ADDRESS TEXT);")
+
+        self.cur.execute("CREATE TABLE IF NOT EXISTS suppliers (SUPPID INTEGER PRIMARY KEY AUTOINCREMENT,"
+                         " NAME TEXT NOT NULL UNIQUE, EMAIL TEXT, PHONE TEXT, ADDRESS TEXT);")
+
+        self.cur.execute(" CREATE TABLE IF NOT EXISTS purchorders (PURCHID INTEGER PRIMARY KEY AUTOINCREMENT,"
+                         " PURCHPRODS TEXT, PURCHTIME DEFAULT (STRFTIME('%Y-%m-%d %H:%M:%S', 'NOW','LOCALTIME')),"
+                         "PURCHTOTAL REAL,FINISHED BOOLEAN DEFAULT '0', SUPPID INTEGER, "
+                         "FOREIGN KEY (SUPPID) REFERENCES SUPPLIERS(SUPPID));")
 
     def getMaxMinDate(self):
         self.cur.execute("SELECT SALETIME FROM sales LIMIT 1;")
@@ -131,6 +145,20 @@ class Ui(QtWidgets.QMainWindow):
                          ((str(date.toPyDate())[:-2]) + '%',))
         monthSumDb = self.cur.fetchone()
         self.monthSumLabel.setText("Month Total: " + str(monthSumDb[0]))
+
+    def replDateSearch(self):
+        replDate = self.replCalendar.selectedDate()
+        self.queryModel = QSqlQueryModel()
+        replSqrStr="SELECT PURCHID, PURCHTIME, PURCHTOTAL, FINISHED,NAME FROM purchorders,suppliers WHERE " \
+                     "purchorders.SUPPID=suppliers.SUPPID AND PURCHTIME LIKE '" + str(
+            replDate.toPyDate()) + "%'"
+
+        self.queryModel.setQuery(replSqrStr)
+
+        self.replTableView.setModel(self.queryModel)
+
+        # self.cur.execute("SELECT SUM(PURCHTOTAL) FROM purchorders WHERE PURCHTIME LIKE ? ",
+        #                  ((str(replDate.toPyDate())[:-2]) + '%',))
 
     def searchString(self):
         stringtosearch = self.searchProd.text()
@@ -214,7 +242,8 @@ class Ui(QtWidgets.QMainWindow):
         self.queryModel.setQuery(sqlstr)
         self.customersTableView.setModel(self.queryModel)
         self.customersTableView.setColumnHidden(0, True)
-
+        if not settings["showVerticalHeader"]:
+            self.customersTableView.verticalHeader().setVisible(False)
     def addCustomer(self, add=True):
         index = (self.customersTableView.selectionModel().currentIndex())
         value = index.sibling(index.row(), 0).data()
@@ -231,7 +260,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def supplierSearch(self):
         self.queryModel = QSqlQueryModel()
-        self.queryModel.setQuery("SELECT * FROM suppliers WHERE NAME LIKE '" + self.searchSuppLine.text() + "%'")
+        self.queryModel.setQuery("SELECT SUPPID,EMAIL,PHONE,ADDRESS,NAME FROM suppliers WHERE NAME LIKE '" + self.searchSuppLine.text() + "%'")
         self.suppliersTableView.setModel(self.queryModel)
         self.suppliersTableView.horizontalHeader().setStretchLastSection(True)
         self.suppliersTableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
@@ -239,20 +268,22 @@ class Ui(QtWidgets.QMainWindow):
         self.suppliersTableView.clicked['QModelIndex'].connect(lambda: self.editSupplierBtn.setEnabled(True))
         self.suppliersTableView.clicked['QModelIndex'].connect(lambda: self.orderBtn.setEnabled(True))
         self.suppliersTableView.clicked['QModelIndex'].connect(lambda: self.orderToolButton.setEnabled(True))
+        self.suppliersTableView.doubleClicked['QModelIndex'].connect(lambda: self.addSupplier(add=False))
         self.orderToolButton.clicked.connect(lambda: self.SupOrderMenu.exec_(self.orderToolButton.mapToGlobal(QPoint(0, 20))))
         self.suppliersTableView.setColumnHidden(0, True)
         self.editSupplierBtn.setEnabled(False)
 
-    def addSupplier(self, add=True):
-        index = (self.suppliersTableView.selectionModel().currentIndex())
-        value = index.sibling(index.row(), 0).data()
+        if not settings["showVerticalHeader"]:
+            self.suppliersTableView.verticalHeader().setVisible(False)
 
+    def addSupplier(self, add=True):
         if add:
             addOrEditSupplier_Ui()
         else:
+            index = (self.suppliersTableView.selectionModel().currentIndex())
+            value = index.sibling(index.row(), 0).data()
             addOrEditSupplier_Ui(value)
 
-        self.editSupplierBtn.setEnabled(False)
         self.customerSearch()
 
 

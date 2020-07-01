@@ -19,6 +19,7 @@ class addOrEditSupplier_Ui(QtWidgets.QDialog):
         self.cur = self.conn.cursor()
 
         if supplierId is None:
+
             self.nameLineEdit.textChanged.connect(self.nameDbCheck)
 
         else:
@@ -32,7 +33,7 @@ class addOrEditSupplier_Ui(QtWidgets.QDialog):
         self.show()
 
     def nameDbCheck(self):
-        self.cur.execute("SELECT NAME FROM suppliers WHERE NAME LIKE ? LIMIT 1",self.nameLineEdit.text(),)
+        self.cur.execute("SELECT NAME FROM suppliers WHERE NAME LIKE ? LIMIT 1",(str(self.nameLineEdit.text()),))
         queryReturn = self.cur.fetchone()
         if queryReturn is not None or self.nameLineEdit.text() == "":
             self.alreadyRegLabel.setText(
@@ -43,9 +44,10 @@ class addOrEditSupplier_Ui(QtWidgets.QDialog):
             self.saveButton.setEnabled(True)
 
     def setPrefill(self):
-        self.cur.execute("SELECT NAME,EMAIL,PHONE,ADDRESS FROM suppliers WHERE SUPPID= ? ",(self.supplierId,))
+        self.cur.execute("SELECT NAME,EMAIL,PHONE,ADDRESS FROM suppliers WHERE SUPPID= ? ",((self.supplierId),))
         supplierTuple = self.cur.fetchone()
         self.nameLineEdit.setText(supplierTuple[0])
+        self.setWindowTitle("Pyofsale - "+str(supplierTuple[0]))
         self.emailLineEdit.setText(supplierTuple[1])
         self.phoneLineEdit.setText(supplierTuple[2])
         self.addressLineEdit.setText(supplierTuple[3])
@@ -58,10 +60,7 @@ class addOrEditSupplier_Ui(QtWidgets.QDialog):
                               self.phoneLineEdit.text(),
                               self.addressLineEdit.text(),))
         else:
-            self.cur.execute("UPDATE suppliers SET NAME = ? , EMAIL = ? , PHONE=? , ADDRESS=?, WHERE SUPPID=?",
-                             (self.nameLineEdit.text(),self.emailLineEdit.text(),
-                              self.phoneLineEdit.text(),self.addressLineEdit.text()
-                              ,self.supplierId,))
+            self.cur.execute("UPDATE suppliers SET NAME = ? , EMAIL = ? , PHONE=? , ADDRESS=?, WHERE SUPPID=?",((self.nameLineEdit.text()),(self.emailLineEdit.text()),(self.phoneLineEdit.text()),self.addressLineEdit.text(),(self.supplierId),))
         self.conn.commit()
         self.close()
 

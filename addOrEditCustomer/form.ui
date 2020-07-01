@@ -170,8 +170,19 @@
      <height>25</height>
     </rect>
    </property>
+   <property name="placeholderText">
+    <string>(012) 345-6789</string>
+   </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>nameLineEdit</tabstop>
+  <tabstop>emailLineEdit</tabstop>
+  <tabstop>phoneLineEdit</tabstop>
+  <tabstop>addressLineEdit</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

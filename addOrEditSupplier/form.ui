@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>customerWin</class>
- <widget class="QDialog" name="customerWin">
+ <class>supplierWin</class>
+ <widget class="QDialog" name="supplierWin">
   <property name="enabled">
    <bool>true</bool>
   </property>
@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>customerWin</string>
+   <string>pyofsale - Supplier</string>
   </property>
   <widget class="QLineEdit" name="nameLineEdit">
    <property name="geometry">
@@ -175,6 +175,14 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>nameLineEdit</tabstop>
+  <tabstop>emailLineEdit</tabstop>
+  <tabstop>phoneLineEdit</tabstop>
+  <tabstop>addressLineEdit</tabstop>
+  <tabstop>saveButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

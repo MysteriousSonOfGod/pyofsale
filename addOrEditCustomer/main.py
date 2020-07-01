@@ -46,6 +46,7 @@ class addOrEditCustomer_Ui(QtWidgets.QDialog):
         self.cur.execute("SELECT NAME,EMAIL,PHONE,ADDRESS FROM customers WHERE CUSTOMID= ? ",(self.customerId,))
         customerTuple = self.cur.fetchone()
         self.nameLineEdit.setText(customerTuple[0])
+        self.setWindowTitle("Pyofsale - "+str(customerTuple[0]))
         self.emailLineEdit.setText(customerTuple[1])
         self.phoneLineEdit.setText(customerTuple[2])
         self.addressLineEdit.setText(customerTuple[3])

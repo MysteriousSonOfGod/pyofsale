@@ -2,42 +2,41 @@
 from PyQt5.QtGui import *
 
 from PyQt5 import QtCore, QtGui, QtWidgets,uic
-from PyQt5.QtWidgets import QTableWidgetItem, QPushButton, QCompleter,QMessageBox
+from PyQt5.QtWidgets import QTableWidgetItem, QPushButton, QCompleter, QMessageBox
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel, QSqlQueryModel
 from PyQt5.QtCore import *
+
 import sqlite3
 from decimal import Decimal as D
 
 import sys
 
-class Ui_newSaleWin(QtWidgets.QMainWindow):
-    def __init__(self,saleId=None):
-        super(Ui_newSaleWin, self).__init__()
+class Ui_purchOrder(QtWidgets.QMainWindow):
+    def __init__(self,purchId=None):
+        super(Ui_purchOrder, self).__init__()
 
-        uic.loadUi('newSale/newSale.ui', self)
+        uic.loadUi('purchOrder/purchOrder.ui', self)
         self.data = []
-        self.saleId=saleId
-
+        self.purchId=purchId
         self.setUpConnect()
         self.setCompleter()
-        self.setCustomerCompleter()
-        if self.saleId is not None:
+        self.setSupplierCompleter()
+        if self.purchId is not None:
             import ast
-            self.cur.execute("SELECT SALEID, SALEPRODS, SALETIME, FINISHED,NAME FROM sales,customers WHERE SALEID LIKE ? ",(self.saleId,))
+            self.cur.execute("SELECT PURCHID, SALEPRODS, SALETIME, FINISHED, NAME FROM purchorders, suppliers WHERE PURCHID LIKE ? ",(self.purchId,))
             sqlReturn=self.cur.fetchone()
             prodsStr=sqlReturn[1]
             self.data.extend(ast.literal_eval(prodsStr))
-            self.setCustomer()
+            self.setSupplier()
             if sqlReturn[3]==1:
                 self.finButton.setEnabled(False)
                 self.saveButton.setEnabled(False)
                 self.includeBtn.setEnabled(False)
                 self.deleteBtn.setEnabled(False)
-                self.customerLineEdit.setEnabled(False)
+                self.supplierLineEdit.setEnabled(False)
                 self.searchLineEdit.setEnabled(False)
                 self.quantSpinbox.setEnabled(False)
                 self.doubleSpinBox.setEnabled(False)
-                self.setWindowTitle("PyOfSale - Sale at "+sqlReturn[2])
 
         self.insertItemsTable()
 
@@ -45,13 +44,12 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         self.includeBtn.clicked.connect(self.addItem)
         self.includeBtn.clicked.connect(self.searchLineEdit.setFocus)
         self.saveButton.clicked.connect(lambda: self.finishSale(False))
-        self.customerLineEdit.editingFinished.connect(self.setCustomer)
+        self.supplierLineEdit.editingFinished.connect(self.setSupplier)
         self.finButton.clicked.connect(lambda: self.finishSale(True))
         self.deleteBtn.clicked.connect(self.deleteItem)
 
         self.searchLineEdit.editingFinished.connect(self.setPrice)
         self.quantSpinbox.setKeyboardTracking(False)
-
 
         self.show()
 
@@ -74,8 +72,7 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         self.tableWidget.setColumnCount(3)
 
 
-        self.tableWidget.setHorizontalHeaderLabels(['Quant', 'Desc', 'Price'])
-
+        self.tableWidget.setHorizontalHeaderLabels(['Quant', 'Desc', 'Cost'])
 
         self.tableWidget.setRowCount(len(self.data))
 
@@ -107,17 +104,19 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
             self.tableWidget.setItem(row, 2, QTableWidgetItem((self.data[row][2])))
 
 
-    def setCustomer(self):
-        if self.customerLineEdit.text() is not None and self.saleId is None:
-            self.cur.execute('SELECT CUSTOMID FROM customers WHERE NAME LIKE ?', (self.customerLineEdit.text(),))
-            self.customId = self.cur.fetchone()[0]
-        elif self.saleId is not None:
-            self.cur.execute('SELECT NAME FROM sales,customers WHERE SALEID LIKE ' + str(self.saleId))
-            self.customerLineEdit.setText(str(self.cur.fetchone()[0]))
-            self.cur.execute('SELECT CUSTOMID FROM customers WHERE NAME LIKE ', (self.customerLineEdit.text(),) )
-            self.customId = self.cur.fetchone()[0]
+    def setSupplier(self):
+        self.suppId=0
+        if self.supplierLineEdit.text() is not None and self.purchId is None:
+            self.cur.execute('SELECT SUPPID FROM suppliers WHERE NAME LIKE ?', (self.supplierLineEdit.text(),))
+
+            self.suppId = self.cur.fetchone()[0]
+        elif self.purchId is not None:
+            self.cur.execute('SELECT NAME FROM purchorders, suppliers WHERE PURCHID LIKE ' + str(self.purchId))
+            self.supplierLineEdit.setText(str(self.cur.fetchone()[0]))
+            self.cur.execute('SELECT SUPPID FROM suppliers WHERE NAME LIKE ?', (self.supplierLineEdit.text(),) )
+            self.suppId = self.cur.fetchone()[0]
         else:
-            self.customId=None
+            self.suppId=None
 
 
     def addItem(self):
@@ -162,54 +161,56 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         completer.setCaseSensitivity(Qt.CaseInsensitive)
         self.searchLineEdit.setCompleter(completer)
 
-    def setCustomerCompleter(self):
-        nameToSearch = self.customerLineEdit.text()
+    def setSupplierCompleter(self):
+        nameToSearch = self.supplierLineEdit.text()
 
-        compsearch = "SELECT NAME FROM customers WHERE NAME LIKE '" + nameToSearch + "%'"
+        compsearch = "SELECT NAME FROM suppliers WHERE NAME LIKE '" + nameToSearch + "%'"
         completer = QCompleter()
-        self.customerCompModel = QSqlQueryModel()
+        self.supplierCompModel = QSqlQueryModel()
 
-        self.customerCompModel.setQuery(compsearch)
+        self.supplierCompModel.setQuery(compsearch)
 
-        completer.setModel(self.customerCompModel)
+        completer.setModel(self.supplierCompModel)
         completer.setCompletionMode(completer.PopupCompletion)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
-        self.customerLineEdit.setCompleter(completer)
+        self.supplierLineEdit.setCompleter(completer)
 
 
     def finishSale(self,finished=True):
         areYouSure = QMessageBox()
         areYouSure.setIcon(QMessageBox.Question)
         areYouSure.setText("Are you sure you want to finish this sale?")
-        areYouSure.setInformativeText("Finished sales cannot be edited anymore.")
+        areYouSure.setInformativeText("Finished purchase orders cannot be edited anymore.")
         areYouSure.setWindowTitle("Are you sure?")
         areYouSure.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         returnValue = areYouSure.exec_()
 
         if returnValue == QMessageBox.Yes:
             for item in self.data:
-                self.cur.execute("UPDATE products SET QTY = QTY - ? WHERE PRODID = ?", (item[0], item[1]))
+                print(item)
+                self.cur.execute("UPDATE products SET QTY = QTY + ? WHERE PRODID = ?", (item[0], item[1]))
             self.conn.commit()
             self.insertIntoDb(finished)
 
     def insertIntoDb(self, mode):
-        if self.saleId is None:
+        if self.purchId is None:
             self.cur.execute(
-                "INSERT INTO sales (CUSTOMID,SALEPRODS,SALETOTAL,FINISHED) VALUES (?,?,?,?)",
-                (self.customId,
+                "INSERT INTO purchorders (SUPPID,PURCHPRODS,PURCHTOTAL,FINISHED) VALUES (?,?,?,?)",
+                (self.suppId,
                  str(self.data),
                  str(self.itemsSum),
                  mode,))
+
         else:
-            ("UPDATE sales SET SALEPRODS=?, SALETOTAL=?, FINISHED=?, CUSTOMID=?, WHERE SALEID = ? ",
+            ("UPDATE purchorders SET PURCHPRODS=?, PURCHTOTAL=?, FINISHED=?, SUPPID=?, WHERE PURCHID = ? ",
              (str(self.data),
-              str(self.itemsSum),
+              self.itemsSum,
               mode,
-              self.saleId,))
+             self.purchId,))
 
         self.conn.commit()
         self.close()
 
 # app = QtWidgets.QApplication(sys.argv)
-# window = Ui_newSaleWin()
+# window = Ui_purchOrder()
 # app.exec_()
