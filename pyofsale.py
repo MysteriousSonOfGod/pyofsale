@@ -224,6 +224,14 @@ class Ui(QtWidgets.QMainWindow):
         self.SupOrderMenu = QtWidgets.QMenu()
         self.emailSupAction = self.SupOrderMenu.addAction('E-mail Supplier')
 
+        self.SupOrderMenu.triggered.connect(self.emailSupplier)
+
+    def emailSupplier(self):
+        index = (self.suppliersTableView.selectionModel().currentIndex())
+        suppEmail = index.sibling(index.row(), 1).data()
+        import webbrowser
+        webbrowser.open("mailto:?to=" + suppEmail, new=2)
+
     def customerSearch(self):
         if self.searchCustomerMode.currentIndex() == 0:
             column = "NAME"

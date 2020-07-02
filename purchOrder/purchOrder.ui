@@ -257,7 +257,7 @@
     <rect>
      <x>20</x>
      <y>30</y>
-     <width>341</width>
+     <width>471</width>
      <height>25</height>
     </rect>
    </property>
@@ -282,8 +282,8 @@
   <tabstop>quantSpinbox</tabstop>
   <tabstop>doubleSpinBox</tabstop>
   <tabstop>includeBtn</tabstop>
-  <tabstop>deleteBtn</tabstop>
   <tabstop>alphaOrderCheck</tabstop>
+  <tabstop>deleteBtn</tabstop>
   <tabstop>cancelButton</tabstop>
   <tabstop>saveButton</tabstop>
   <tabstop>finButton</tabstop>
@@ -323,18 +323,34 @@
    </hints>
   </connection>
   <connection>
+   <sender>quantSpinbox</sender>
+   <signal>editingFinished()</signal>
+   <receiver>doubleSpinBox</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>476</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>596</x>
+     <y>95</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>supplierLineEdit</sender>
    <signal>returnPressed()</signal>
    <receiver>searchLineEdit</receiver>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>335</x>
+     <x>265</x>
      <y>43</y>
     </hint>
     <hint type="destinationlabel">
-     <x>168</x>
-     <y>81</y>
+     <x>182</x>
+     <y>93</y>
     </hint>
    </hints>
   </connection>
@@ -342,15 +358,15 @@
    <sender>doubleSpinBox</sender>
    <signal>editingFinished()</signal>
    <receiver>includeBtn</receiver>
-   <slot>setFocus()</slot>
+   <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>622</x>
-     <y>99</y>
+     <x>644</x>
+     <y>89</y>
     </hint>
     <hint type="destinationlabel">
-     <x>728</x>
-     <y>91</y>
+     <x>752</x>
+     <y>90</y>
     </hint>
    </hints>
   </connection>

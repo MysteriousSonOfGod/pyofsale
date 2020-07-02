@@ -1,4 +1,3 @@
-
 from PyQt5.QtGui import *
 
 from PyQt5 import QtCore, QtGui, QtWidgets,uic
@@ -6,6 +5,7 @@ from PyQt5.QtWidgets import QTableWidgetItem, QPushButton, QCompleter, QMessageB
 from PyQt5.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel, QSqlQueryModel
 from PyQt5.QtCore import *
 
+import datetime
 import sqlite3
 from decimal import Decimal as D
 
@@ -21,6 +21,7 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
         self.setUpConnect()
         self.setCompleter()
         self.setSupplierCompleter()
+
         if self.purchId is not None:
             import ast
             self.cur.execute("SELECT PURCHID, SALEPRODS, SALETIME, FINISHED, NAME FROM purchorders, suppliers WHERE PURCHID LIKE ? ",(self.purchId,))
@@ -48,7 +49,7 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
         self.finButton.clicked.connect(lambda: self.finishSale(True))
         self.deleteBtn.clicked.connect(self.deleteItem)
 
-        self.searchLineEdit.editingFinished.connect(self.setPrice)
+        self.searchLineEdit.editingFinished.connect(self.setCost)
         self.quantSpinbox.setKeyboardTracking(False)
 
         self.show()
@@ -60,17 +61,16 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
         self.db.setDatabaseName("pyofsaledb.db")
         self.db.open()
 
-    def setPrice(self):
+    def setCost(self):
         if self.searchLineEdit.text() != '':
-            self.cur.execute("SELECT PRICE FROM products WHERE DESC LIKE ? ",(self.searchLineEdit.text() + "%",))
-            itemPrice = self.cur.fetchone()[0]
-            self.doubleSpinBox.setValue(float(itemPrice))
+            self.cur.execute("SELECT COST FROM products WHERE DESC LIKE ? ",(self.searchLineEdit.text() + "%",))
+            itemCost = self.cur.fetchone()[0]
+            self.doubleSpinBox.setValue(float(itemCost))
             self.searchLineEdit.returnPressed.connect(lambda: self.quantSpinbox.setFocus())
 
     def insertItemsTable(self):
         self.tableWidget.clear()
         self.tableWidget.setColumnCount(3)
-
 
         self.tableWidget.setHorizontalHeaderLabels(['Quant', 'Desc', 'Cost'])
 
@@ -141,7 +141,7 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
         sqlstr = "SELECT " \
                  "PRODID," \
                  "BARCODE," \
-                 "PRICE," \
+                 "COST," \
                  "QTY," \
                  "DESC " \
                  "FROM products " \
@@ -187,8 +187,7 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
 
         if returnValue == QMessageBox.Yes:
             for item in self.data:
-                print(item)
-                self.cur.execute("UPDATE products SET QTY = QTY + ? WHERE PRODID = ?", (item[0], item[1]))
+                self.cur.execute("UPDATE products SET COST =?, QTY = QTY + ? WHERE PRODID = ?", (item[2],item[0], item[1],))
             self.conn.commit()
             self.insertIntoDb(finished)
 

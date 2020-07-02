@@ -446,6 +446,9 @@
       <property name="autoFillBackground">
        <bool>true</bool>
       </property>
+      <property name="locale">
+       <locale language="English" country="UnitedStates"/>
+      </property>
       <property name="gridVisible">
        <bool>true</bool>
       </property>
@@ -551,9 +554,9 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>690</x>
+        <x>680</x>
         <y>180</y>
-        <width>61</width>
+        <width>71</width>
         <height>31</height>
        </rect>
       </property>
