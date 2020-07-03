@@ -156,9 +156,7 @@ class Ui(QtWidgets.QMainWindow):
         self.queryModel.setQuery(replSqrStr)
 
         self.replTableView.setModel(self.queryModel)
-
-        # self.cur.execute("SELECT SUM(PURCHTOTAL) FROM purchorders WHERE PURCHTIME LIKE ? ",
-        #                  ((str(replDate.toPyDate())[:-2]) + '%',))
+        self.replTableView.horizontalHeader().setStretchLastSection(True)
 
     def searchString(self):
         stringtosearch = self.searchProd.text()

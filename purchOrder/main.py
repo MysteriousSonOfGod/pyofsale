@@ -7,7 +7,7 @@ from PyQt5.QtCore import *
 
 import datetime
 import sqlite3
-from decimal import Decimal as D
+from decimal import *
 
 import sys
 
@@ -44,12 +44,16 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
         self.cancelButton.clicked.connect(lambda: self.close())
         self.includeBtn.clicked.connect(self.addItem)
         self.includeBtn.clicked.connect(self.searchLineEdit.setFocus)
-        self.saveButton.clicked.connect(lambda: self.finishSale(False))
+        self.saveButton.clicked.connect(lambda: self.finish(False))
         self.supplierLineEdit.editingFinished.connect(self.setSupplier)
-        self.finButton.clicked.connect(lambda: self.finishSale(True))
+        self.finButton.clicked.connect(lambda: self.finish(True))
         self.deleteBtn.clicked.connect(self.deleteItem)
 
+        self.profitMargin.valueChanged.connect(self.calcSalePrice)
+        self.salePrice.valueChanged.connect(self.calcPercent)
+
         self.searchLineEdit.editingFinished.connect(self.setCost)
+
         self.quantSpinbox.setKeyboardTracking(False)
 
         self.show()
@@ -61,18 +65,32 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
         self.db.setDatabaseName("pyofsaledb.db")
         self.db.open()
 
+    def calcSalePrice(self):
+        salePriceValue=Decimal(Decimal(self.doubleSpinBox.text().replace(",", "."))*(Decimal(self.profitMargin.text().replace(",", ".")))/100)
+        salePriceValue=(Decimal(self.doubleSpinBox.text().replace(",", "."))+salePriceValue)
+        self.salePrice.setValue(salePriceValue)
+
+    def calcPercent(self):
+        profitPercent=(self.salePrice.value()) - (self.doubleSpinBox.value())
+        if profitPercent !=0:
+            profitPercent=(1/(self.doubleSpinBox.value()/profitPercent))*100
+            self.profitMargin.setValue(round(profitPercent,2))
+        else:
+            self.profitMargin.setValue(0)
+
     def setCost(self):
         if self.searchLineEdit.text() != '':
             self.cur.execute("SELECT COST FROM products WHERE DESC LIKE ? ",(self.searchLineEdit.text() + "%",))
             itemCost = self.cur.fetchone()[0]
             self.doubleSpinBox.setValue(float(itemCost))
             self.searchLineEdit.returnPressed.connect(lambda: self.quantSpinbox.setFocus())
+            self.calcSalePrice()
 
     def insertItemsTable(self):
         self.tableWidget.clear()
-        self.tableWidget.setColumnCount(3)
+        self.tableWidget.setColumnCount(4)
 
-        self.tableWidget.setHorizontalHeaderLabels(['Quant', 'Desc', 'Cost'])
+        self.tableWidget.setHorizontalHeaderLabels(['Quant', 'Desc', 'Cost', 'Price'])
 
         self.tableWidget.setRowCount(len(self.data))
 
@@ -82,13 +100,13 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
 
         itemsSum = 0
         for row in self.data:
-            itemTotal=D(D(row[0])*D(row[2]))
+            itemTotal=(Decimal(row[0])*Decimal(row[2]))
             itemsSum = itemTotal + itemsSum
         self.itemsSum=itemsSum
         self.tableWidget.clearSelection()
 
         if itemsSum>0:
-            self.totalLabel.setText("Total: "+str(self.itemsSum))
+            self.totalLabel.setText('<html><head/><body><p><span style=" font-size:11pt; font-weight:600;">Total: '+str(self.itemsSum)+'</span></p></body></html>')
 
         self.tableWidget.clearSelection()
         if self.alphaOrderCheck.isChecked():
@@ -102,6 +120,7 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
             self.tableWidget.setItem(row, 0, QTableWidgetItem(str((self.data[row][0]))))
             self.tableWidget.setItem(row, 1, QTableWidgetItem(str(itemDesc)))
             self.tableWidget.setItem(row, 2, QTableWidgetItem((self.data[row][2])))
+            self.tableWidget.setItem(row, 3, QTableWidgetItem((self.data[row][3])))
 
 
     def setSupplier(self):
@@ -118,12 +137,15 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
         else:
             self.suppId=None
 
-
     def addItem(self):
         if self.searchLineEdit.text() != '' and int(self.quantSpinbox.text()) > 0 :
+
+            itemSalePrice = Decimal(Decimal(self.doubleSpinBox.text().replace(",", "."))*(Decimal(self.profitMargin.text().replace(",", ".")))/100)
+            itemSalePrice = (Decimal(self.doubleSpinBox.text().replace(",", "."))+itemSalePrice)
+
             self.cur.execute("SELECT PRODID FROM products WHERE DESC LIKE ?",(self.searchLineEdit.text(),))
             itemID = self.cur.fetchone()[0]
-            self.data.extend([[int(self.quantSpinbox.text()), itemID, self.doubleSpinBox.text().replace(",", ".")]])
+            self.data.extend([[int(self.quantSpinbox.text()), itemID, self.doubleSpinBox.text().replace(",", "."),str(itemSalePrice)]])
             self.insertItemsTable()
             self.doubleSpinBox.setValue(0.00)
             self.quantSpinbox.setValue(1)
@@ -176,7 +198,7 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
         self.supplierLineEdit.setCompleter(completer)
 
 
-    def finishSale(self,finished=True):
+    def finish(self,finished=True):
         areYouSure = QMessageBox()
         areYouSure.setIcon(QMessageBox.Question)
         areYouSure.setText("Are you sure you want to finish this sale?")
@@ -187,7 +209,7 @@ class Ui_purchOrder(QtWidgets.QMainWindow):
 
         if returnValue == QMessageBox.Yes:
             for item in self.data:
-                self.cur.execute("UPDATE products SET COST =?, QTY = QTY + ? WHERE PRODID = ?", (item[2],item[0], item[1],))
+                self.cur.execute("UPDATE products SET COST =?, PRICE=?, QTY = QTY + ? WHERE PRODID = ?", (item[2],item[0], item[1],item[3],))
             self.conn.commit()
             self.insertIntoDb(finished)
 
