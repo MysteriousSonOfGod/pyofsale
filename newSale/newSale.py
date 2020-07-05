@@ -21,14 +21,15 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         self.setUpConnect()
         self.setCompleter()
         self.setCustomerCompleter()
+
         if self.saleId is not None:
             import ast
             self.cur.execute("SELECT SALEID, SALEPRODS, SALETIME, FINISHED,NAME FROM sales,customers WHERE SALEID LIKE ? ",(self.saleId,))
-            sqlReturn=self.cur.fetchone()
-            prodsStr=sqlReturn[1]
+            self.sqlReturn=self.cur.fetchone()
+            prodsStr=self.sqlReturn[1]
             self.data.extend(ast.literal_eval(prodsStr))
             self.setCustomer()
-            if sqlReturn[3]==1:
+            if self.sqlReturn[3]==1:
                 self.finButton.setEnabled(False)
                 self.saveButton.setEnabled(False)
                 self.includeBtn.setEnabled(False)
@@ -37,7 +38,10 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
                 self.searchLineEdit.setEnabled(False)
                 self.quantSpinbox.setEnabled(False)
                 self.doubleSpinBox.setEnabled(False)
-                self.setWindowTitle("PyOfSale - Sale at "+sqlReturn[2])
+                self.setWindowTitle("PyOfSale - Sale at "+self.sqlReturn[2])
+        else:
+            self.finButton.setEnabled(True)
+            self.saveButton.setEnabled(True)
 
         self.insertItemsTable()
 
@@ -90,8 +94,7 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         self.itemsSum=itemsSum
         self.tableWidget.clearSelection()
 
-        if itemsSum>0:
-            self.totalLabel.setText("Total: "+str(self.itemsSum))
+        self.totalLabel.setText('<html><head/><body><p><span style=" font-size:11pt; font-weight:600;">Total: %s</span></p></body></html>' % (str(self.itemsSum),))
 
         self.tableWidget.clearSelection()
         if self.alphaOrderCheck.isChecked():
@@ -106,6 +109,12 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
             self.tableWidget.setItem(row, 1, QTableWidgetItem(str(itemDesc)))
             self.tableWidget.setItem(row, 2, QTableWidgetItem((self.data[row][2])))
 
+        if len(self.data)>0:
+            self.finButton.setEnabled(True)
+            self.saveButton.setEnabled(True)
+        else:
+            self.finButton.setEnabled(False)
+            self.saveButton.setEnabled(False)
 
     def setCustomer(self):
         if self.customerLineEdit.text() is not None and self.saleId is None:
@@ -114,7 +123,7 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
         elif self.saleId is not None:
             self.cur.execute('SELECT NAME FROM sales,customers WHERE SALEID LIKE ' + str(self.saleId))
             self.customerLineEdit.setText(str(self.cur.fetchone()[0]))
-            self.cur.execute('SELECT CUSTOMID FROM customers WHERE NAME LIKE ', (self.customerLineEdit.text(),) )
+            self.cur.execute('SELECT CUSTOMID FROM customers WHERE NAME LIKE ?', (self.customerLineEdit.text(),) )
             self.customId = self.cur.fetchone()[0]
         else:
             self.customId=None
@@ -130,12 +139,14 @@ class Ui_newSaleWin(QtWidgets.QMainWindow):
             self.quantSpinbox.setValue(1)
             self.searchLineEdit.clear()
 
+
     def deleteItem(self):
         index = (self.tableWidget.selectionModel().currentIndex())
         if index.row() != -1:
             self.data.pop(index.row())
             self.insertItemsTable()
             self.tableWidget.clearSelection()
+        self.insertItemsTable()
 
     def setCompleter(self):
         stringtosearch = self.searchLineEdit.text()

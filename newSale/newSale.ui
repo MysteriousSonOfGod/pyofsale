@@ -136,7 +136,7 @@
     <rect>
      <x>310</x>
      <y>440</y>
-     <width>81</width>
+     <width>201</width>
      <height>21</height>
     </rect>
    </property>
@@ -180,6 +180,9 @@
    </property>
   </widget>
   <widget class="QPushButton" name="finButton">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>710</x>
@@ -206,6 +209,9 @@
    </property>
   </widget>
   <widget class="QPushButton" name="saveButton">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>620</x>

@@ -37,6 +37,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.searchCustomer.textChanged.connect(self.customerSearch)
         self.searchCustomerMode.currentIndexChanged.connect(self.customerSearch)
+        self.startsOrContains.currentIndexChanged.connect(self.customerSearch)
 
         self.customersTableView.horizontalHeader().setStretchLastSection(True)
         self.customersTableView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
@@ -231,14 +232,9 @@ class Ui(QtWidgets.QMainWindow):
         webbrowser.open("mailto:?to=" + suppEmail, new=2)
 
     def customerSearch(self):
-        if self.searchCustomerMode.currentIndex() == 0:
-            column = "NAME"
-        elif self.searchCustomerMode.currentIndex() == 1:
-            column = "PHONE"
-        elif self.searchCustomerMode.currentIndex() == 2:
-            column = "ADDRESS"
-        else:
-            column = "EMAIL"
+        columnsList=['NAME','PHONE','ADDRESS','EMAIL']
+        column = columnsList[self.searchCustomerMode.currentIndex()]
+
         wildcard = "'"
         if self.startsOrContains.currentIndex():
             wildcard = "'%"
@@ -250,6 +246,7 @@ class Ui(QtWidgets.QMainWindow):
         self.customersTableView.setColumnHidden(0, True)
         if not settings["showVerticalHeader"]:
             self.customersTableView.verticalHeader().setVisible(False)
+
     def addCustomer(self, add=True):
         index = (self.customersTableView.selectionModel().currentIndex())
         value = index.sibling(index.row(), 0).data()
